@@ -10,7 +10,6 @@ class Message(BaseModel):
 class LLMRequest(BaseModel):
     prompt: Optional[str] = None
     topic: str
-    profile_id: str
     
     @field_validator('prompt', mode='before')
     @classmethod
