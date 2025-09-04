@@ -1,0 +1,29 @@
+  Функция на получение истории сообщений
+  
+  CREATE OR REPLACE FUNCTION get_latest_conversations_by_topic(p_profile_id TEXT)
+  RETURNS TABLE (
+      id BIGINT,
+      profile_id TEXT,
+      topic TEXT,
+      conversation_id TEXT,
+      message TEXT,
+      created_at TIMESTAMP WITH TIME ZONE
+  ) AS $$
+  BEGIN
+      RETURN QUERY
+      WITH latest_topics AS (
+          SELECT DISTINCT ON (t.topic)
+              t.topic,
+              t.conversation_id,
+              t.created_at
+          FROM cofounder_conversation_history t
+          WHERE t.profile_id = p_profile_id
+          ORDER BY t.topic, t.created_at DESC
+      )
+      SELECT h.*
+      FROM cofounder_conversation_history h
+      INNER JOIN latest_topics lt ON h.conversation_id = lt.conversation_id
+      WHERE h.profile_id = p_profile_id
+      ORDER BY h.created_at ASC;
+  END;
+  $$ LANGUAGE plpgsql;
