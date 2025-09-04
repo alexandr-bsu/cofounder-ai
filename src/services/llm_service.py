@@ -19,8 +19,11 @@ class LLMService:
         def _call() -> BaseDynamicConfig:
             messages: list[BaseMessageParam] = [
                 *history,
-                Messages.User(content=query),
             ]
+            # Only add user message if query is not None or empty
+            if query:
+                messages.append(Messages.User(content=query))
+            
             return {
                 "messages": messages
             }
