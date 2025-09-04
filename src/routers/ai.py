@@ -9,10 +9,9 @@ import time
 router = APIRouter(prefix='/ai')
 
 path_map = {
-    'list_communities': 'docs/list_communities.csv'
+    'list_communities': 'docs/list_communities.csv',
+    'questions': 'docs/questions.csv'
 }
-
-
 
 
 @router.post('/ask')
