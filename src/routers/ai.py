@@ -27,7 +27,6 @@ async def ask(request: LLMRequest):
     if not request.prompt:
         if system_instructions:
             message_history.append({'role': 'system', 'content': tansform_files_to_context(system_instructions['context'], path_map=path_map)})
-            # message_history.append({'role': 'assistant', 'content':'Принято! Жду запроса пользователя'}),
             message_history.append({'role': 'user', 'content': system_instructions['message']})
 
     response = await llm.infer(query=request.prompt, history=message_history)
@@ -37,7 +36,6 @@ async def ask(request: LLMRequest):
     
     return {'content': content, 'instructions_with_context': [
         {'role': 'system', 'content': tansform_files_to_context(system_instructions['context'], path_map=path_map)},
-        # {'role': 'assistant', 'content':'Принято! Жду запроса пользователя'},
         {'role': 'user', 'content': system_instructions['message']}
     ] if not request.prompt and system_instructions else []}
      
