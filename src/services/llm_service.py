@@ -13,7 +13,7 @@ class LLMService:
             model=settings.openrouter.model_id,
             call_params={
                 'reasoning_effort': 'medium',
-                'max_tokens': 1800
+                'max_tokens': 1800*3
             }
         )
         def _call() -> BaseDynamicConfig:
