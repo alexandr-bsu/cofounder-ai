@@ -10,7 +10,8 @@ router = APIRouter(prefix='/ai')
 
 path_map = {
     'list_communities': 'docs/list_communities.csv',
-    'questions': 'docs/questions.csv'
+    'questions': 'docs/questions.csv',
+    'professional_community_page': 'docs/professional_community.txt'
 }
 
 
