@@ -18,6 +18,7 @@ path_map = {
 @router.post('/ask')
 async def ask(request: LLMRequest):
 
+
     supabase = SupabaseService()
 
     message_history = await transorm_history_to_llm_format(await supabase.get_history(profile_id=request.profile_id))
