@@ -13,7 +13,7 @@ class LLMService:
         self.client: OpenAI = OpenAI(
             api_key=settings.openrouter.openrouter_api_key, base_url=settings.openrouter.base_url)
 
-    async def infer(self, query, history: list[BaseMessageParam] = []) -> BaseDynamicConfig:
+    async def infer(self, query, history: list[BaseMessageParam] = [], session_id: str=None) -> BaseDynamicConfig:
         @with_langfuse()
         @openai.call(
             client=self.client,
@@ -31,9 +31,14 @@ class LLMService:
             if query:
                 messages.append(Messages.User(content=query))
 
-            return {
+            override_settings = {
                 "messages": messages
             }
+
+            if session_id is not None:
+               override_settings['langfuse_session_id'] = session_id 
+
+            return override_settings
 
         return _call()
 
