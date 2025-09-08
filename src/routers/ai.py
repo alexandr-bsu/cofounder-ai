@@ -2,10 +2,9 @@ from fastapi import APIRouter
 from src.schemas import LLMRequest
 from src.services.llm_service import llm
 from src.services.supabase_service import SupabaseService
-from src.utils import transorm_history_to_llm_format, tansform_files_to_context
+from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram
 import re
 import time
-
 router = APIRouter(prefix='/ai')
 
 path_map = {
@@ -33,9 +32,13 @@ async def ask(request: LLMRequest):
     response = await llm.infer(query=request.prompt, history=message_history)
 
     content = response.response.choices[0].message.content
-    content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
     
-    return {'content': content, 'instructions_with_context': [
+    # Постобработка ответа ИИ
+    content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+    content_telegram_chunks = transform_markdown_to_telegram_html(content)
+    content_telegram_chunks = split_html_text_for_telegram(content_telegram_chunks)
+
+    return {'content': content, "content_telegram_chunks": content_telegram_chunks, 'instructions_with_context': [
         {'role': 'system', 'content': tansform_files_to_context(system_instructions['context'], path_map=path_map)},
         {'role': 'user', 'content': system_instructions['message']}
     ] if not request.prompt and system_instructions else []}
