@@ -13,8 +13,15 @@ class OpenRouterSettings(BaseSettings):
     model_id: str
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
 
+class LangFuseSettings(BaseSettings):
+    langfuse_public_key: str 
+    langfuse_secret_key: str
+    langfuse_host: str 
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+
 class Settings(BaseModel):
     supabase: SupabaseSettings = SupabaseSettings()
     openrouter: OpenRouterSettings = OpenRouterSettings()
+    langfuse: LangFuseSettings = LangFuseSettings()
 
 settings = Settings() 

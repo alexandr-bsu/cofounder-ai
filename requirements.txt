@@ -1,6 +1,8 @@
 annotated-types==0.7.0
 anyio==4.10.0
+backoff==2.2.1
 certifi==2025.8.3
+charset-normalizer==3.4.3
 click==8.2.1
 colorama==0.4.6
 deprecation==2.1.0
@@ -22,6 +24,7 @@ idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
 jiter==0.10.0
+langfuse==2.60.9
 markdown-it-py==4.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
@@ -30,7 +33,7 @@ mistune==3.1.4
 mistune-telegram==0.5.0
 openai==1.105.0
 orjson==3.11.3
-packaging==25.0
+packaging==24.2
 postgrest==1.1.1
 pydantic==2.11.7
 pydantic-extra-types==2.10.5
@@ -43,6 +46,7 @@ python-dotenv==1.1.1
 python-multipart==0.0.20
 PyYAML==6.0.2
 realtime==2.7.0
+requests==2.32.5
 rich==14.1.0
 rich-toolkit==0.15.0
 rignore==0.6.4
@@ -65,3 +69,4 @@ urllib3==2.5.0
 uvicorn==0.35.0
 watchfiles==1.1.0
 websockets==15.0.1
+wrapt==1.17.3
