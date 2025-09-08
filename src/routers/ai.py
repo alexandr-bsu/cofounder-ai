@@ -29,6 +29,7 @@ async def ask(request: LLMRequest):
             message_history.append({'role': 'system', 'content': tansform_files_to_context(system_instructions['context'], path_map=path_map)})
             message_history.append({'role': 'user', 'content': system_instructions['message']})
 
+    print('history: ', message_history)
     response = await llm.infer(query=request.prompt, history=message_history)
 
     content = response.response.choices[0].message.content
