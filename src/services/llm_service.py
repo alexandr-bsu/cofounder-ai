@@ -12,7 +12,7 @@ class LLMService:
             client=self.client,
             model=settings.openrouter.model_id,
             call_params={
-                'reasoning_effort': 'medium',
+                'reasoning_effort': 'high',
                 'max_tokens': 1800*3
             }
         )
