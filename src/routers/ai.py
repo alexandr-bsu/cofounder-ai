@@ -15,7 +15,8 @@ path_map = {
     'product': 'docs/product.txt',
     'client_offer': 'docs/client_offer.txt',
     'custdev': 'docs/custdev.txt',
-    'cofounder_offer': 'docs/cofounder_offer.txt'
+    'cofounder_offer': 'docs/cofounder_offer.txt',
+    'business_model': 'docs/business_model.txt'
 }
 
 
