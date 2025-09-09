@@ -26,7 +26,11 @@ async def ask(request: LLMRequest):
 
     supabase = SupabaseService()
 
-    message_history = await transorm_history_to_llm_format(await supabase.get_history(profile_id=request.profile_id))
+    message_history = await transorm_history_to_llm_format(
+        await supabase.get_history(
+            profile_id=request.profile_id,
+            init_topic=request.topic if not request.prompt else None)
+            )
     system_instructions = await supabase.get_instructions(topic=request.topic)
 
     # инициируем общение если не указан prompt
