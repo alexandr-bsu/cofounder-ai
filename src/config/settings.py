@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel
 
+
 class SupabaseSettings(BaseSettings):
     supabase_url: str
     supabase_anon_key: str
@@ -19,9 +20,15 @@ class LangFuseSettings(BaseSettings):
     langfuse_host: str 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
 
+class TargetHunterSettings(BaseSettings):
+    target_hunter_api_key: str
+    target_hunter_bot_id: str
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+
 class Settings(BaseModel):
     supabase: SupabaseSettings = SupabaseSettings()
     openrouter: OpenRouterSettings = OpenRouterSettings()
     langfuse: LangFuseSettings = LangFuseSettings()
+    target_hunter: TargetHunterSettings = TargetHunterSettings()
 
 settings = Settings() 

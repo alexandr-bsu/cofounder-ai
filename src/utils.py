@@ -81,8 +81,13 @@ async def transorm_history_to_llm_format(history):
 
 telegram_style = mistune.create_markdown(renderer=TelegramHTMLRenderer(), plugins=[strikethrough])
 def transform_markdown_to_telegram_html(markdown_text: str):
-    return telegram_style(markdown_text)
-
+    result = telegram_style(markdown_text)
+    
+    # Удаляем повторяющиеся подряд теги
+    result = re.sub(r'(<(/?)([a-zA-Z][a-zA-Z0-9]*)[^>]*>)\1+', r'\1', result)
+    
+    return result
+    
 def split_html_text_for_telegram(html_text: str, max_length: int = 4000) -> List[str]:
     """
     Разделяет HTML текст на части не более max_length символов,
