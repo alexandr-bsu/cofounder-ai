@@ -32,7 +32,14 @@ class Profile(BaseModel):
             return '; '.join(str(item) for item in v)
         return v
 
+class Tracker(BaseModel):
+    data: Profile
+    formName: str
+    stage: str
 
+class Transition(BaseModel):
+    user_id: str
+    code: str
 
 class LLMRequest(BaseModel):
     prompt: Optional[str] = None
