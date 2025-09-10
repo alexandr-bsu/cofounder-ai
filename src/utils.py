@@ -4,6 +4,32 @@ import re
 from mistune.plugins.formatting import strikethrough
 from mistune_telegram import TelegramHTMLRenderer
 
+from typing import Any, TypeVar
+
+T = TypeVar("T", bound="AsyncMixin")
+
+# https://dev.to/akarshan/asynchronous-python-magic-how-to-create-awaitable-constructors-with-asyncmixin-18j5
+# https://web.archive.org/web/20230915163459/https://dev.to/akarshan/asynchronous-python-magic-how-to-create-awaitable-constructors-with-asyncmixin-18j5
+class AsyncMixin:
+    """
+    Асинхронный миксин для поддержки асинхронной инициализации объектов.
+    """
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.__storedargs = args, kwargs
+        self.async_initialized = False
+
+    async def __ainit__(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
+    async def __initobj(self: T) -> T:
+        assert not self.async_initialized
+        self.async_initialized = True
+        await self.__ainit__(*self.__storedargs[0], **self.__storedargs[1])
+        return self
+
+    def __await__(self):
+        return self.__initobj().__await__()
+
 def get_paths_from_map(paths: List[str], path_map):
     real_paths = []
     for path in paths:

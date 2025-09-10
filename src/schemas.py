@@ -7,6 +7,33 @@ class Message(BaseModel):
     role: Literal["system", "user", "assistant"]
     content: str
 
+class Profile(BaseModel):
+    id: str
+    age: int = Field(default=0, gt=0)
+    city: Optional[str] = Field(default=None)
+    hiring_status: Optional[str] = Field(default=None)
+    cofounder_skills: Optional[str] = Field(default=None)
+    cofounder_experience: Optional[str] = Field(default=None)
+    hiring_skills: Optional[str] = Field(default=None)
+    cofounder_expertise: Optional[str] = Field(default=None)
+    cofounder_income_expectations: Optional[str] = Field(default=None)
+    cofounder_invest: Optional[str] = Field(default=None)
+    cofounder_financial_needs: Optional[str] = Field(default=None)
+    hours_per_day_project: Optional[str] = Field(default=None)
+    cofounder_idea: Optional[str] = Field(default=None)
+    participation_in_accelerators: Optional[str] = Field(default=None)
+    telegram: Optional[str] = Field(default=None)
+    name: Optional[str] = Field(default=None)
+
+    @field_validator('cofounder_skills', 'hiring_skills', 'cofounder_expertise', mode='before')
+    @classmethod
+    def convert_array_to_string(cls, v):
+        if isinstance(v, list):
+            return '; '.join(str(item) for item in v)
+        return v
+
+
+
 class LLMRequest(BaseModel):
     prompt: Optional[str] = None
     topic: str

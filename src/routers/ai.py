@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from src.schemas import LLMRequest
+from src.services import history_service
 from src.services.llm_service import llm
-from src.services.supabase_service import SupabaseService
+from src.services.history_service import HistoryService
 from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram
 import re
 
@@ -24,14 +25,14 @@ path_map = {
 async def ask(request: LLMRequest):
 
 
-    supabase = SupabaseService()
+    history_service = HistoryService()
 
     message_history = await transorm_history_to_llm_format(
-        await supabase.get_history(
+        await history_service.get_history(
             profile_id=request.profile_id,
             init_topic=request.topic if not request.prompt else None)
             )
-    system_instructions = await supabase.get_instructions(topic=request.topic)
+    system_instructions = await history_service.get_instructions(topic=request.topic)
 
     # инициируем общение если не указан prompt
     if not request.prompt:
