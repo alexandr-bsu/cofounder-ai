@@ -7,6 +7,14 @@ class Message(BaseModel):
     role: Literal["system", "user", "assistant"]
     content: str
 
+class ConversationHistoryMessage(BaseModel):
+    topic: str
+    message: str
+    role: str
+    conversation_id: str
+    profile_id: str
+
+
 class Profile(BaseModel):
     id: str
     age: int = Field(default=0, gt=0)

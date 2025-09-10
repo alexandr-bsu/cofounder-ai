@@ -1,6 +1,5 @@
-from fastapi import APIRouter
-from src.schemas import LLMRequest
-from src.services import history_service
+from fastapi import APIRouter, BackgroundTasks
+from src.schemas import ConversationHistoryMessage, LLMRequest
 from src.services.llm_service import llm
 from src.services.history_service import HistoryService
 from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram
@@ -20,11 +19,17 @@ path_map = {
     'business_model': 'docs/business_model.txt'
 }
 
+async def add_message_to_conversation_background(message: ConversationHistoryMessage):
+    hs = await HistoryService()
+    await hs.add_message_to_conversation_history(message)
+
+@router.post('/addMessageToConversationHistory', status_code=201)
+async def add_message_to_conversation_history(message: ConversationHistoryMessage, background_tasks: BackgroundTasks):
+    background_tasks.add_task(add_message_to_conversation_background, message)
+    return {"success": True}
 
 @router.post('/ask')
 async def ask(request: LLMRequest):
-
-
     history_service = HistoryService()
 
     message_history = await transorm_history_to_llm_format(

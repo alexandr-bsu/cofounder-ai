@@ -1,11 +1,12 @@
 from src.config.settings import settings
 from supabase import acreate_client, AClient
-from src.schemas import Message
+from src.schemas import Message, ConversationHistoryMessage
 from typing import Optional
+from src.utils import AsyncMixin
 
-class HistoryService:
-    def __init__(self):
-        self.supabase: AClient = acreate_client(
+class HistoryService(AsyncMixin):
+    async def __ainit__(self):
+        self.supabase: AClient = await acreate_client(
             settings.supabase.supabase_url, settings.supabase.supabase_service_key)
 
     async def get_history(self, profile_id: str, init_topic:Optional[str] = None) -> list[Message]:
@@ -25,3 +26,7 @@ class HistoryService:
             '*').eq('topic', topic).execute()
         return response.data[0] if len(response.data) else []
 
+
+    async def add_message_to_conversation_history(self, message: ConversationHistoryMessage):
+        result = await self.supabase.table('cofounder_conversation_history').insert(message.model_dump()).execute()
+        return result
