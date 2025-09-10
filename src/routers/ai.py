@@ -29,14 +29,7 @@ async def add_message_to_conversation_background(message: ConversationHistoryMes
     await hs.add_message_to_conversation_history(message)
 
 
-@router.post('/addMessageToConversationHistory', status_code=201)
-async def add_message_to_conversation_history(message: ConversationHistoryMessage, background_tasks: BackgroundTasks):
-    background_tasks.add_task(add_message_to_conversation_background, message)
-    return {"success": True}
-
-
-@router.post('/initConversation', status_code=200)
-async def init_conversation(request: InitConverastionRequest):
+async def init_conversation_background(request: InitConverastionRequest):
     hs = await HistoryService()
     ths = await TargetHunterService()
 
@@ -65,6 +58,16 @@ async def init_conversation(request: InitConverastionRequest):
     
     return telegram_chuncks
 
+@router.post('/addMessageToConversationHistory', status_code=201)
+async def add_message_to_conversation_history(message: ConversationHistoryMessage, background_tasks: BackgroundTasks):
+    background_tasks.add_task(add_message_to_conversation_background, message)
+    return {"success": True}
+
+
+@router.post('/initConversation', status_code=200)
+async def init_conversation(request: InitConverastionRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(init_conversation_background, request)
+    return {"succes": True}
 
 async def ask(request: LLMRequest):
     history_service = await HistoryService()

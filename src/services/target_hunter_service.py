@@ -19,7 +19,5 @@ class TargetHunterService(AsyncMixin):
                 url='https://smm.targethunter.ru/api/bots/addUser',
                 json=request_params.model_dump()
             )
-            print(response)
-            print(response._request)
             return response
 
