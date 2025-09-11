@@ -224,7 +224,8 @@ def map_step_name_to_step_id(step_name: str):
         'Бизнес модель': '68a713e46eea3358683ccab1',
         'Оффер': '68a71753ffcdc54781081bcf',
         'Маршутизация запросов по офферу': '68b0149dcb1c3a18ea01e043',
-        'Команда': '68a81e80856ba478a0400418'
+        'Команда': '68a81e80856ba478a0400418',
+        'Панель ИИ инструментов': '68b025db0afafd6ccf3bf9aa'
     }
 
     return step_map[step_name]
