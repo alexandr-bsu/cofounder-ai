@@ -63,9 +63,9 @@ async def init_conversation_background(request: InitConverastionRequest):
 async def process_conversation_background(request: UserMessageRequest):
     hs = await HistoryService()
     ths = await TargetHunterService()
-    ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id, prompt=request.prompt))
+    ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id, prompt=request.message))
 
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.prompt, conversation_id=request.conversation_id, role='user', profile_id=request.profile_id))
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.message, conversation_id=request.conversation_id, role='user', profile_id=request.profile_id))
     await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['content'], conversation_id=request.conversation_id, role='assistant', profile_id=request.profile_id))
 
     # Контент подготовленный в формате telegram
@@ -146,7 +146,7 @@ async def write_direct_message_background(request: DirectMessageRequest):
     hs = await HistoryService()
 
     system_instruction = await hs.get_instructions(request.topic)
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=system_instruction, conversation_id=conversation_id, role='system', profile_id=request.profile_id))
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=system_instruction['message'], conversation_id=conversation_id, role='system', profile_id=request.profile_id))
     await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.message, conversation_id=conversation_id, role='user', profile_id=request.profile_id))
     await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message='Спасибо. Я записал ваши ответы', conversation_id=conversation_id, role='assistant', profile_id=request.profile_id))
 

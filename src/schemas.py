@@ -80,7 +80,7 @@ class DirectMessageRequest(BaseModel):
     
 class UserMessageRequest(InitConverastionRequest):
     conversation_id: str
-    uid: str
+    message: str
 
 class BackToBotRequest(BaseModel):
     uid: str

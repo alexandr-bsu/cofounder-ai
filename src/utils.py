@@ -221,7 +221,7 @@ def split_html_text_for_telegram(html_text: str, max_length: int = 4000) -> List
 def map_step_name_to_step_id(step_name: str):
     step_map = {
         'Имя клиента': '68afedd3db06f3077d03cb93',
-        'Бизнес-модель': '68a713e46eea3358683ccab1',
+        'Бизнес модель': '68a713e46eea3358683ccab1',
         'Оффер': '68a71753ffcdc54781081bcf',
         'Маршутизация запросов по офферу': '68b0149dcb1c3a18ea01e043',
         'Команда': '68a81e80856ba478a0400418'
