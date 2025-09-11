@@ -31,7 +31,7 @@ class TargetHunterRequest(BaseModel):
 
 class Profile(BaseModel):
     id: str
-    age: int = Field(default=0, gt=0)
+    age: int = Field(default=0)
     city: Optional[str] = Field(default=None)
     hiring_status: Optional[str] = Field(default=None)
     cofounder_skills: Optional[str] = Field(default=None)
