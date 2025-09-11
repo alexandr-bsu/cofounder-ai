@@ -6,10 +6,10 @@ from src.config.settings import settings
 import json
 
 
-
 class Message(BaseModel):
     role: Literal["system", "user", "assistant"]
     content: str
+
 
 class ConversationHistoryMessage(BaseModel):
     topic: str
@@ -17,15 +17,17 @@ class ConversationHistoryMessage(BaseModel):
     role: str
     conversation_id: str
     profile_id: str
-    
+
+
 class TargetHunterRequest(BaseModel):
-    api_key: str = Field(default= settings.target_hunter.target_hunter_api_key)
-    bot_id: str = Field(default= settings.target_hunter.target_hunter_bot_id)
+    api_key: str = Field(default=settings.target_hunter.target_hunter_api_key)
+    bot_id: str = Field(default=settings.target_hunter.target_hunter_bot_id)
     step_id: str
     uid: str
     channel: str = Field(default='TG')
     force: int = Field(default=1)
     payload: Optional[Dict[Any, Any]] = Field(default=None)
+
 
 class Profile(BaseModel):
     id: str
@@ -52,20 +54,30 @@ class Profile(BaseModel):
             return '; '.join(str(item) for item in v)
         return v
 
+
 class Tracker(BaseModel):
     data: Profile
     formName: str
     stage: str
 
+
 class Transition(BaseModel):
     user_id: str
     code: str
+
 
 class InitConverastionRequest(BaseModel):
     topic: str
     profile_id: str
     uid: str
 
+
+class DirectMessageRequest(BaseModel):
+    topic: str
+    profile_id: str
+    uid: str
+    message: str
+    
 class UserMessageRequest(InitConverastionRequest):
     conversation_id: str
     uid: str
@@ -73,7 +85,7 @@ class UserMessageRequest(InitConverastionRequest):
 class BackToBotRequest(BaseModel):
     uid: str
     topic: str
-    
+
 class LLMRequest(BaseModel):
     prompt: Optional[str] = None
     topic: str

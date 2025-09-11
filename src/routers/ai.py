@@ -1,7 +1,8 @@
 import asyncio
 from uuid import uuid4
 from fastapi import APIRouter, BackgroundTasks
-from src.schemas import ConversationHistoryMessage, LLMRequest, InitConverastionRequest, UserMessageRequest, BackToBotRequest
+from src.schemas import ConversationHistoryMessage, DirectMessageRequest, LLMRequest, InitConverastionRequest, UserMessageRequest, BackToBotRequest
+from src.services import history_service
 from src.services.llm_service import llm
 from src.services.history_service import HistoryService
 from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram, map_step_name_to_step_id
@@ -136,6 +137,23 @@ async def transfer_back_to_bot_mode_background(request: BackToBotRequest):
 async def transfer_back_to_bot_mode(request: BackToBotRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(transfer_back_to_bot_mode_background, request)
     return {"succes": True}
+
+async def write_direct_message_background(request: DirectMessageRequest):
+    conversation_id = str(uuid4())
+    hs = await HistoryService()
+
+    system_instruction = await hs.get_instructions(request.topic)
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=system_instruction, conversation_id=conversation_id, role='system', profile_id=request.profile_id))
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.message, conversation_id=conversation_id, role='user', profile_id=request.profile_id))
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message='Спасибо. Я записал ваши ответы', conversation_id=conversation_id, role='assistant', profile_id=request.profile_id))
+
+
+@router.post('/writeDirectMessage', status_code=200)
+async def write_direct_message(request: DirectMessageRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(write_direct_message_background, request)
+    return {"succes": True}
+
+
 
 async def ask(request: LLMRequest):
     history_service = await HistoryService()
