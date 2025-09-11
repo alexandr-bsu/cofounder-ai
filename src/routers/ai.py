@@ -36,56 +36,62 @@ async def init_conversation_background(request: InitConverastionRequest):
 
     conversation_id = str(uuid4())
 
-    ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id))
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['instructions_with_context'][0]['content'], conversation_id=conversation_id, role=ai_response['instructions_with_context'][0]['role'], profile_id=request.profile_id))
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['instructions_with_context'][1]['content'], conversation_id=conversation_id, role=ai_response['instructions_with_context'][1]['role'], profile_id=request.profile_id))
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['content'], conversation_id=conversation_id, role='assistant', profile_id=request.profile_id))
+    try:
+        ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id))
+        await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['instructions_with_context'][0]['content'], conversation_id=conversation_id, role=ai_response['instructions_with_context'][0]['role'], profile_id=request.profile_id))
+        await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['instructions_with_context'][1]['content'], conversation_id=conversation_id, role=ai_response['instructions_with_context'][1]['role'], profile_id=request.profile_id))
+        await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['content'], conversation_id=conversation_id, role='assistant', profile_id=request.profile_id))
 
-    # Контент подготовленный в формате telegram
-    telegram_chuncks = ai_response['content_telegram_chunks']
+        # Контент подготовленный в формате telegram
+        telegram_chuncks = ai_response['content_telegram_chunks']
 
-    for chunk in telegram_chuncks:
-        await ths.go_to_step(
-            step_id='68be7106d0dbaa14e10c8be3',
-            uid=request.uid,
-            payload={
-                "response": {
-                    "text": chunk,
-                    "conversationId": conversation_id
+        for chunk in telegram_chuncks:
+            await ths.go_to_step(
+                step_id='68be7106d0dbaa14e10c8be3',
+                uid=request.uid,
+                payload={
+                    "response": {
+                        "text": chunk,
+                        "conversationId": conversation_id
+                    }
                 }
-            }
-        )
-        await asyncio.sleep(1)
+            )
+            await asyncio.sleep(1)
 
-    return telegram_chuncks
+        return telegram_chuncks
+    except:
+        await ths.go_to_step(step_id='68be76796758a72c5933ea20', uid=request.uid)
 
 
 async def process_conversation_background(request: UserMessageRequest):
     hs = await HistoryService()
     ths = await TargetHunterService()
-    ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id, prompt=request.message))
+    
+    try:
+        ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id, prompt=request.message))
 
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.message, conversation_id=request.conversation_id, role='user', profile_id=request.profile_id))
-    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['content'], conversation_id=request.conversation_id, role='assistant', profile_id=request.profile_id))
+        await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.message, conversation_id=request.conversation_id, role='user', profile_id=request.profile_id))
+        await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['content'], conversation_id=request.conversation_id, role='assistant', profile_id=request.profile_id))
 
-    # Контент подготовленный в формате telegram
-    telegram_chuncks = ai_response['content_telegram_chunks']
+        # Контент подготовленный в формате telegram
+        telegram_chuncks = ai_response['content_telegram_chunks']
 
-    for chunk in telegram_chuncks:
-        await ths.go_to_step(
-            step_id='68afe458915d25156227c07f',
-            uid=request.uid,
-            payload={
-                "response": {
-                    "text": chunk,
-                    "conversationId": request.conversation_id
+        for chunk in telegram_chuncks:
+            await ths.go_to_step(
+                step_id='68afe458915d25156227c07f',
+                uid=request.uid,
+                payload={
+                    "response": {
+                        "text": chunk,
+                        "conversationId": request.conversation_id
+                    }
                 }
-            }
-        )
-        await asyncio.sleep(1)
+            )
+            await asyncio.sleep(1)
 
-    return telegram_chuncks
-
+        return telegram_chuncks
+    except:
+        await ths.go_to_step(step_id='68be779342c3a903a242e279', uid=request.uid)
 
 @router.post('/addMessageToConversationHistory', status_code=201)
 async def add_message_to_conversation_history(message: ConversationHistoryMessage, background_tasks: BackgroundTasks):
@@ -151,7 +157,7 @@ async def transfer_back_to_bot_mode(request: BackToBotRequest, background_tasks:
 async def write_direct_message_background(request: DirectMessageRequest):
     conversation_id = str(uuid4())
     hs = await HistoryService()
-
+    
     system_instruction = await hs.get_instructions(request.topic)
     await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=system_instruction['message'], conversation_id=conversation_id, role='system', profile_id=request.profile_id))
     await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.message, conversation_id=conversation_id, role='user', profile_id=request.profile_id))
