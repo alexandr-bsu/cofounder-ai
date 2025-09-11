@@ -70,7 +70,10 @@ class UserMessageRequest(InitConverastionRequest):
     conversation_id: str
     uid: str
 
-
+class BackToBotRequest(BaseModel):
+    uid: str
+    topic: str
+    
 class LLMRequest(BaseModel):
     prompt: Optional[str] = None
     topic: str

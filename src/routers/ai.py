@@ -1,13 +1,12 @@
 import asyncio
 from uuid import uuid4
 from fastapi import APIRouter, BackgroundTasks
-from src.schemas import ConversationHistoryMessage, LLMRequest, InitConverastionRequest, UserMessageRequest
+from src.schemas import ConversationHistoryMessage, LLMRequest, InitConverastionRequest, UserMessageRequest, BackToBotRequest
 from src.services.llm_service import llm
 from src.services.history_service import HistoryService
-from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram
+from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram, map_step_name_to_step_id
 import re
 from src.services.target_hunter_service import TargetHunterService
-import json
 
 router = APIRouter(prefix='/ai')
 
@@ -22,6 +21,7 @@ path_map = {
     'cofounder_offer': 'docs/cofounder_offer.txt',
     'business_model': 'docs/business_model.txt'
 }
+
 
 async def add_message_to_conversation_background(message: ConversationHistoryMessage):
     hs = await HistoryService()
@@ -54,7 +54,7 @@ async def init_conversation_background(request: InitConverastionRequest):
             }
         )
         await asyncio.sleep(1)
-    
+
     return telegram_chuncks
 
 
@@ -81,8 +81,9 @@ async def process_conversation_background(request: UserMessageRequest):
             }
         )
         await asyncio.sleep(1)
-    
+
     return telegram_chuncks
+
 
 @router.post('/addMessageToConversationHistory', status_code=201)
 async def add_message_to_conversation_history(message: ConversationHistoryMessage, background_tasks: BackgroundTasks):
@@ -95,19 +96,45 @@ async def init_conversation(request: InitConverastionRequest, background_tasks: 
     background_tasks.add_task(init_conversation_background, request)
     return {"succes": True}
 
+
 @router.post('/processConversation', status_code=200)
 async def init_conversation(request: UserMessageRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(process_conversation_background, request)
     return {"succes": True}
 
-#TODO add extract entities api
+# TODO add extract entities api
+
+
 @router.post('/parseEntities', status_code=202)
 async def parse_entities():
     return {"succes": True}
 
-#TODO add save extracted entities api
+# TODO add save extracted entities api
+
+
 @router.post('/saveEntities', status_code=202)
 async def save_entities():
+    return {"succes": True}
+
+
+async def transfer_back_to_bot_mode_background(request: BackToBotRequest):
+    step_map = {
+        'Генерация специализации': map_step_name_to_step_id('Имя клиента'),
+        'Генерация гипотезы': map_step_name_to_step_id('Бизнес модель'),
+        'Генерация бизнес модели': map_step_name_to_step_id('Оффер'),
+        'Генерация описания продукта': map_step_name_to_step_id('Маршутизация запросов по офферу'),
+        'Генерация вопросов на CustDev': map_step_name_to_step_id('Маршутизация запросов по офферу'),
+        'Генерация оффера для клиента': map_step_name_to_step_id('Маршутизация запросов по офферу'),
+        'Генерация оффера для кофаундера': map_step_name_to_step_id('Команда'),
+        'Генерация оффера для кофаундера (без перенаправлений)': '68b01fae13001b42b560dda1'
+    }
+
+    ths = await TargetHunterService()
+    await ths.go_to_step(step_id=step_map[request.topic], uid=request.uid)
+
+@router.post('/transferBackToBotMode', status_code=200)
+async def transfer_back_to_bot_mode(request: BackToBotRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(transfer_back_to_bot_mode_background, request)
     return {"succes": True}
 
 async def ask(request: LLMRequest):
