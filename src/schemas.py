@@ -66,6 +66,11 @@ class InitConverastionRequest(BaseModel):
     profile_id: str
     uid: str
 
+class UserMessageRequest(InitConverastionRequest):
+    conversation_id: str
+    uid: str
+
+
 class LLMRequest(BaseModel):
     prompt: Optional[str] = None
     topic: str

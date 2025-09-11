@@ -1,7 +1,7 @@
 import asyncio
 from uuid import uuid4
 from fastapi import APIRouter, BackgroundTasks
-from src.schemas import ConversationHistoryMessage, LLMRequest, InitConverastionRequest
+from src.schemas import ConversationHistoryMessage, LLMRequest, InitConverastionRequest, UserMessageRequest
 from src.services.llm_service import llm
 from src.services.history_service import HistoryService
 from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram
@@ -22,7 +22,6 @@ path_map = {
     'cofounder_offer': 'docs/cofounder_offer.txt',
     'business_model': 'docs/business_model.txt'
 }
-
 
 async def add_message_to_conversation_background(message: ConversationHistoryMessage):
     hs = await HistoryService()
@@ -58,6 +57,33 @@ async def init_conversation_background(request: InitConverastionRequest):
     
     return telegram_chuncks
 
+
+async def process_conversation_background(request: UserMessageRequest):
+    hs = await HistoryService()
+    ths = await TargetHunterService()
+    ai_response = await ask(LLMRequest(topic=request.topic, profile_id=request.profile_id, prompt=request.prompt))
+
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=request.prompt, conversation_id=request.conversation_id, role='user', profile_id=request.profile_id))
+    await hs.add_message_to_conversation_history(ConversationHistoryMessage(topic=request.topic, message=ai_response['content'], conversation_id=request.conversation_id, role='assistant', profile_id=request.profile_id))
+
+    # Контент подготовленный в формате telegram
+    telegram_chuncks = ai_response['content_telegram_chunks']
+
+    for chunk in telegram_chuncks:
+        await ths.go_to_step(
+            step_id='68afe458915d25156227c07f',
+            uid=request.uid,
+            payload={
+                "response": {
+                    "text": chunk,
+                    "conversationId": request.conversation_id
+                }
+            }
+        )
+        await asyncio.sleep(1)
+    
+    return telegram_chuncks
+
 @router.post('/addMessageToConversationHistory', status_code=201)
 async def add_message_to_conversation_history(message: ConversationHistoryMessage, background_tasks: BackgroundTasks):
     background_tasks.add_task(add_message_to_conversation_background, message)
@@ -67,6 +93,21 @@ async def add_message_to_conversation_history(message: ConversationHistoryMessag
 @router.post('/initConversation', status_code=200)
 async def init_conversation(request: InitConverastionRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(init_conversation_background, request)
+    return {"succes": True}
+
+@router.post('/processConversation', status_code=200)
+async def init_conversation(request: UserMessageRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(process_conversation_background, request)
+    return {"succes": True}
+
+#TODO add extract entities api
+@router.post('/parseEntities', status_code=202)
+async def parse_entities():
+    return {"succes": True}
+
+#TODO add save extracted entities api
+@router.post('/saveEntities', status_code=202)
+async def save_entities():
     return {"succes": True}
 
 async def ask(request: LLMRequest):

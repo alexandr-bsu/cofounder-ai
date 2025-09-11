@@ -23,7 +23,7 @@ async def add_profile(form_data: Profile, background_tasks: BackgroundTasks):
     background_tasks.add_task(add_profile_background, form_data)
     return {"success": True}
 
-@router.post('/track', status_code=201)
+@router.put('/track', status_code=201)
 async def track(track_data: Tracker, background_tasks: BackgroundTasks):
     background_tasks.add_task(track_background, track_data)
     return {"success": True}
