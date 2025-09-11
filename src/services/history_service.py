@@ -15,7 +15,9 @@ class HistoryService(AsyncMixin):
         param: init_topic:str - При инициализации диалога удаляет из истории все предыдущие сообщения по теме 
         """
 
-        init_topic = re.sub(r'\s*\([^)]*\)', '', init_topic).strip()
+        if init_topic is not None:
+           init_topic = re.sub(r'\s*\([^)]*\)', '', init_topic).strip()
+
         response = await self.supabase.rpc('get_latest_conversations_by_topic', {
             'p_profile_id': profile_id
         }).execute()
@@ -24,7 +26,7 @@ class HistoryService(AsyncMixin):
         return response
 
     async def get_instructions(self, topic: str):
-        topic = init_topic = re.sub(r'\s*\([^)]*\)', '', topic).strip()
+        topic =  re.sub(r'\s*\([^)]*\)', '', topic).strip()
         response = await self.supabase.table('cofounder_system_prompts').select(
             '*').eq('topic', topic).execute()
         return response.data[0] if len(response.data) else []
