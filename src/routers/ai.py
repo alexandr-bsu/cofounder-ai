@@ -8,6 +8,7 @@ from src.services.history_service import HistoryService
 from src.utils import transorm_history_to_llm_format, tansform_files_to_context, transform_markdown_to_telegram_html, split_html_text_for_telegram, map_step_name_to_step_id
 import re
 from src.services.target_hunter_service import TargetHunterService
+import random
 
 router = APIRouter(prefix='/ai')
 
@@ -133,10 +134,12 @@ async def transfer_back_to_bot_mode_background(request: BackToBotRequest):
     ths = await TargetHunterService()
     await ths.go_to_step(step_id=step_map[request.topic], uid=request.uid)
 
+
 @router.post('/transferBackToBotMode', status_code=200)
 async def transfer_back_to_bot_mode(request: BackToBotRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(transfer_back_to_bot_mode_background, request)
     return {"succes": True}
+
 
 async def write_direct_message_background(request: DirectMessageRequest):
     conversation_id = str(uuid4())
@@ -153,6 +156,29 @@ async def write_direct_message(request: DirectMessageRequest, background_tasks: 
     background_tasks.add_task(write_direct_message_background, request)
     return {"succes": True}
 
+
+@router.get('/genRandomWaitMessage')
+async def gen_random_wait_message():
+    wait_messages = [
+        '🧠 ИИ включил режим “гения на максималках”…',
+        '🧠 ИИ включил мозги. Шумят, греются, но работают.',
+        '📬 Запрос в очереди. ИИ сообщил: “Сейчас, только это доделаю…”',
+        '🧋 ИИ сделал глоток кофе и начал думать…',
+        '🛠️ ИИ чешет затылок. Это может занять пару секунд…',
+        '📈 ИИ строит график ответа. Ось Y — “гениальность”, ось X — “успех”…',
+        '☕ ИИ ждёт, пока загрузится кофе в голове. 99%…',
+        '📦 Запрос в работе. Упаковка ответа — в процессе. Скотч есть, коробка — на подходе',
+        '🚀 Принял запрос — уже рисую схему ответа на салфетке. Скоро покажу!',
+        '☕ Выпил кофе — включился. Сейчас выдам вам не просто ответ, а чуть больше, чем вы ждали',
+    ]
+
+    random_wait_message = wait_messages[random.randint(
+        0, len(wait_messages)-1)
+    ]
+
+    return {'response':
+            {'text': random_wait_message}
+        }
 
 
 async def ask(request: LLMRequest):
